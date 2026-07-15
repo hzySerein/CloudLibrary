@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!-- 生产环境禁用SQL日志输出到stdout，如需调试可临时改为 STDOUT_LOGGING -->
+        <!-- <setting name="logImpl" value="STDOUT_LOGGING"/> -->
+    </settings>
+    <typeAliases>
+        <package name="org.cloudlibrary.entity"/>
+    </typeAliases>
+</configuration>

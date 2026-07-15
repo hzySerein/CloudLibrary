@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.cloudlibrary.mapper.BookMapper">
+    <select id="selectById" parameterType="int" resultType="Book">
+        SELECT 
+            id,
+            name,
+            author,
+            isbn,
+            stock,
+            type,
+            status,
+            cover,
+            description,
+            create_time as createTime
+        FROM book WHERE id=#{id}
+    </select>
+    <select id="selectByIsbn" parameterType="string" resultType="Book">
+        SELECT 
+            id,
+            name,
+            author,
+            isbn,
+            stock,
+            type,
+            status,
+            cover,
+            description,
+            create_time as createTime
+        FROM book WHERE isbn=#{isbn}
+    </select>
+    <select id="selectByPage" resultType="Book">
+        SELECT 
+            id,
+            name,
+            author,
+            isbn,
+            stock,
+            type,
+            status,
+            cover,
+            description,
+            create_time as createTime
+        FROM book ORDER BY id DESC LIMIT #{offset}, #{size}
+    </select>
+    <select id="searchBooks" resultType="Book">
+        SELECT 
+            id,
+            name,
+            author,
+            isbn,
+            stock,
+            type,
+            status,
+            cover,
+            description,
+            create_time as createTime
+        FROM book 
+        WHERE status = 1 
+        AND (name LIKE CONCAT('%', #{keyword}, '%') 
+             OR author LIKE CONCAT('%', #{keyword}, '%') 
+             OR isbn LIKE CONCAT('%', #{keyword}, '%')) 
+        ORDER BY id DESC 
+        LIMIT #{offset}, #{size}
+    </select>
+    <select id="countTotalBook" resultType="int">
+        SELECT COUNT(*) FROM book WHERE status = 1
+    </select>
+    <select id="countSearchBooks" resultType="int">
+        SELECT COUNT(*) FROM book 
+        WHERE status = 1 
+        AND (name LIKE CONCAT('%', #{keyword}, '%') 
+             OR author LIKE CONCAT('%', #{keyword}, '%') 
+             OR isbn LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+    <!-- BookMapper.xml -->
+    <select id="countBookTypeRatio" resultType="map" parameterType="map">
+        SELECT type, COUNT(*) as count FROM book GROUP BY type
+    </select>
+    
+    <!-- 热门图书排行榜（按借阅次数排序） -->
+    <select id="selectTopBooks" resultType="Book">
+        SELECT 
+            b.id,
+            b.name,
+            b.author,
+            b.isbn,
+            b.stock,
+            b.type,
+            b.status,
+            b.cover,
+            b.description,
+            b.create_time as createTime,
+            COUNT(br.id) as borrowCount 
+        FROM book b 
+        LEFT JOIN borrow br ON b.id = br.book_id 
+        WHERE b.status = 1 
+        GROUP BY b.id
+        ORDER BY borrowCount DESC 
+        LIMIT #{limit}
+    </select>
+    
+    <insert id="insert" parameterType="Book" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO book (name, author, isbn, stock, type, status, cover, description, create_time)
+        VALUES (#{name}, #{author}, #{isbn}, #{stock}, #{type}, #{status}, #{cover}, #{description}, #{createTime})
+    </insert>
+    <update id="update" parameterType="Book">
+        UPDATE book
+        SET name=#{name}, author=#{author}, isbn=#{isbn}, stock=#{stock}, type=#{type}, status=#{status}, cover=#{cover}, description=#{description}
+        WHERE id=#{id}
+    </update>
+    <update id="updateCover">
+        UPDATE book SET cover = #{cover} WHERE id = #{id}
+    </update>
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM book WHERE id=#{id}
+    </delete>
+    <update id="updateStock">
+        UPDATE book SET stock = stock + #{num} WHERE id = #{id} AND stock + #{num} &gt;= 0
+    </update>
+</mapper>

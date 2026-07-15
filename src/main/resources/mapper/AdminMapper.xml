@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 命名空间必须与AdminMapper接口全类名完全一致 -->
+<mapper namespace="org.cloudlibrary.mapper.AdminMapper">
+
+    <!-- 根据用户名查询管理员（含密码，用于登录验证） -->
+    <select id="selectByUsername" resultType="org.cloudlibrary.entity.Admin">
+        SELECT
+            id,
+            username,
+            password,
+            name,
+            phone,
+            status,
+            role,
+            create_time as createTime
+        FROM user
+        WHERE username = #{username} AND role = 'admin'
+    </select>
+
+    <select id="selectById" parameterType="int" resultType="org.cloudlibrary.entity.Admin">
+        SELECT
+            id,
+            username,
+            name,
+            phone,
+            status,
+            role,
+            create_time as createTime
+        FROM user
+        WHERE id = #{id} AND role = 'admin'
+    </select>
+
+    <update id="update" parameterType="org.cloudlibrary.entity.Admin">
+        UPDATE user
+        SET username = #{username},
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            name = #{name}, phone = #{phone}, status = #{status}
+        WHERE id = #{id} AND role = 'admin'
+    </update>
+
+</mapper>

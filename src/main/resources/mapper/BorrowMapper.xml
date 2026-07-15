@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.cloudlibrary.mapper.BorrowMapper">
+    <select id="selectById" parameterType="int" resultType="Borrow">
+        SELECT
+            id,
+            book_id as bookId,
+            user_id as userId,
+            borrow_time as borrowTime,
+            due_time as dueTime,
+            return_time as returnTime,
+            status
+        FROM borrow WHERE id = #{id}
+    </select>
+
+    <!-- ========== 带关联信息的查询（解决N+1问题） ========== -->
+
+    <!-- 结果映射：Borrow + Book + User -->
+    <resultMap id="borrowWithDetails" type="Borrow">
+        <id property="id" column="b_id"/>
+        <result property="bookId" column="book_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="borrowTime" column="borrow_time"/>
+        <result property="dueTime" column="due_time"/>
+        <result property="returnTime" column="return_time"/>
+        <result property="status" column="status"/>
+        <association property="book" javaType="Book">
+            <id property="id" column="bk_id"/>
+            <result property="name" column="bk_name"/>
+            <result property="author" column="bk_author"/>
+            <result property="isbn" column="bk_isbn"/>
+            <result property="stock" column="bk_stock"/>
+            <result property="type" column="bk_type"/>
+            <result property="status" column="bk_status"/>
+            <result property="cover" column="bk_cover"/>
+        </association>
+        <association property="user" javaType="User">
+            <id property="id" column="u_id"/>
+            <result property="username" column="u_username"/>
+            <result property="name" column="u_name"/>
+            <result property="phone" column="u_phone"/>
+        </association>
+    </resultMap>
+
+    <!-- 管理员分页查询（含图书和用户信息） -->
+    <select id="selectByPageWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover,
+            u.id as u_id, u.username as u_username, u.name as u_name, u.phone as u_phone
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        LEFT JOIN user u ON b.user_id = u.id
+        ORDER BY b.borrow_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 管理员搜索借阅（含图书和用户信息） -->
+    <select id="searchBorrowsWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover,
+            u.id as u_id, u.username as u_username, u.name as u_name, u.phone as u_phone
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        LEFT JOIN user u ON b.user_id = u.id
+        WHERE (u.name LIKE CONCAT('%', #{keyword}, '%')
+             OR u.username LIKE CONCAT('%', #{keyword}, '%')
+             OR bk.name LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY b.borrow_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 用户的借阅记录（含图书信息） -->
+    <select id="selectByUserIdWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        WHERE b.user_id = #{userId}
+        ORDER BY b.borrow_time DESC
+    </select>
+
+    <!-- 用户分页借阅记录（含图书信息） -->
+    <select id="selectByUserIdPageWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        WHERE b.user_id = #{userId}
+        ORDER BY b.borrow_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 用户搜索借阅（含图书信息） -->
+    <select id="searchUserBorrowsWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        WHERE b.user_id = #{userId}
+        AND (bk.name LIKE CONCAT('%', #{keyword}, '%')
+             OR bk.author LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY b.borrow_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- ========== 逾期查询（SQL级过滤+分页） ========== -->
+
+    <!-- 管理员查看所有逾期记录（含图书和用户信息）：未归还(status!=1)且已超过应还时间 -->
+    <select id="selectOverdueWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover,
+            u.id as u_id, u.username as u_username, u.name as u_name, u.phone as u_phone
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        LEFT JOIN user u ON b.user_id = u.id
+        WHERE b.status != 1 AND b.due_time < NOW()
+        ORDER BY b.due_time ASC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 管理员逾期记录计数 -->
+    <select id="countOverdue" resultType="int">
+        SELECT COUNT(*) FROM borrow WHERE status != 1 AND due_time < NOW()
+    </select>
+
+    <!-- 用户查看自己的逾期记录（含图书信息） -->
+    <select id="selectOverdueByUserIdWithDetails" resultMap="borrowWithDetails">
+        SELECT
+            b.id as b_id, b.book_id, b.user_id, b.borrow_time, b.due_time, b.return_time, b.status,
+            bk.id as bk_id, bk.name as bk_name, bk.author as bk_author, bk.isbn as bk_isbn,
+            bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover
+        FROM borrow b
+        LEFT JOIN book bk ON b.book_id = bk.id
+        WHERE b.user_id = #{userId} AND b.status != 1 AND b.due_time < NOW()
+        ORDER BY b.due_time ASC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 用户逾期记录计数 -->
+    <select id="countOverdueByUserId" resultType="int">
+        SELECT COUNT(*) FROM borrow WHERE user_id = #{userId} AND status != 1 AND due_time < NOW()
+    </select>
+
+    <!-- 按用户ID计数 -->
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM borrow WHERE user_id = #{userId}
+    </select>
+
+    <!-- 按图书ID计数 -->
+    <select id="countByBookId" resultType="int">
+        SELECT COUNT(*) FROM borrow WHERE book_id = #{bookId}
+    </select>
+    <select id="countSearchBorrows" resultType="int">
+        SELECT COUNT(*) FROM borrow b 
+        LEFT JOIN user u ON b.user_id = u.id
+        LEFT JOIN book bk ON b.book_id = bk.id
+        WHERE (u.name LIKE CONCAT('%', #{keyword}, '%') 
+             OR u.username LIKE CONCAT('%', #{keyword}, '%')
+             OR bk.name LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+    <select id="countSearchUserBorrows" resultType="int">
+        SELECT COUNT(*) FROM borrow b 
+        LEFT JOIN book bk ON b.book_id = bk.id
+        WHERE b.user_id = #{userId}
+        AND (bk.name LIKE CONCAT('%', #{keyword}, '%') 
+             OR bk.author LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+    <select id="countTotalBorrow" resultType="int">
+        SELECT COUNT(*) FROM borrow
+    </select>
+    <!-- 未归还记录数（status=0未归还 + status=2待确认归还） -->
+    <select id="countUnReturnBorrow" resultType="int">
+        SELECT COUNT(*) FROM borrow WHERE status = 0 OR status = 2
+    </select>
+
+    <select id="countBorrowTrend" parameterType="int" resultType="map">
+        SELECT DATE_FORMAT(borrow_time, '%Y-%m') as month, COUNT(*) as count
+        FROM borrow
+        WHERE borrow_time >= DATE_SUB(NOW(), INTERVAL #{months} MONTH)
+        GROUP BY DATE_FORMAT(borrow_time, '%Y-%m')
+        ORDER BY month ASC
+    </select>
+    
+    <insert id="insert" parameterType="Borrow">
+        INSERT INTO borrow (book_id, user_id, due_time, status)
+        VALUES (#{bookId}, #{userId}, #{dueTime}, #{status})
+    </insert>
+    <update id="updateReturnTime">
+        UPDATE borrow SET return_time = #{returnTime} WHERE id = #{id}
+    </update>
+    <update id="updateStatus">
+        UPDATE borrow SET status = #{status} WHERE id = #{id}
+    </update>
+</mapper>

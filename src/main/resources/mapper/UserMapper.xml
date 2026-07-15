@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.cloudlibrary.mapper.UserMapper">
+    <!-- 根据用户名查询（含密码，用于登录验证） -->
+    <select id="selectByUsername" resultType="User">
+        SELECT
+            id,
+            username,
+            password,
+            name,
+            phone,
+            status,
+            role,
+            create_time as createTime
+        FROM user WHERE username = #{username}
+    </select>
+    <select id="selectById" parameterType="int" resultType="User">
+        SELECT
+            id,
+            username,
+            name,
+            phone,
+            status,
+            role,
+            create_time as createTime
+        FROM user WHERE id = #{id}
+    </select>
+    <select id="selectByPage" resultType="User">
+        SELECT
+            id,
+            username,
+            name,
+            phone,
+            status,
+            role,
+            create_time as createTime
+        FROM user ORDER BY id DESC LIMIT #{offset}, #{size}
+    </select>
+    <select id="searchUsers" resultType="User">
+        SELECT
+            id,
+            username,
+            name,
+            phone,
+            status,
+            role,
+            create_time as createTime
+        FROM user
+        WHERE status = 1
+        AND (username LIKE CONCAT('%', #{keyword}, '%')
+             OR name LIKE CONCAT('%', #{keyword}, '%')
+             OR phone LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+    <select id="countTotalUser" resultType="int">
+        SELECT COUNT(*) FROM user WHERE status = 1
+    </select>
+    <select id="countSearchUsers" resultType="int">
+        SELECT COUNT(*) FROM user 
+        WHERE status = 1
+        AND (username LIKE CONCAT('%', #{keyword}, '%') 
+             OR name LIKE CONCAT('%', #{keyword}, '%') 
+             OR phone LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+    
+    <!-- 活跃用户排行榜（按借阅次数排序） -->
+    <select id="selectActiveUsers" resultType="User">
+        SELECT
+            u.id,
+            u.username,
+            u.name,
+            u.phone,
+            u.status,
+            u.role,
+            u.create_time as createTime,
+            COUNT(b.id) as borrowCount
+        FROM user u
+        LEFT JOIN borrow b ON u.id = b.user_id
+        WHERE u.status = 1
+        GROUP BY u.id
+        ORDER BY borrowCount DESC
+        LIMIT #{limit}
+    </select>
+    
+    <insert id="insert" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (username, password, name, phone, status, role, create_time)
+        VALUES (#{username}, #{password}, #{name}, #{phone}, #{status}, #{role}, #{createTime})
+    </insert>
+    <update id="update" parameterType="User">
+        UPDATE user
+        SET username=#{username},
+            <if test="password != null and password != ''">
+                password=#{password},
+            </if>
+            name=#{name}, phone=#{phone}, status=#{status}, role=#{role}
+        WHERE id=#{id}
+    </update>
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM user WHERE id=#{id}
+    </delete>
+</mapper>

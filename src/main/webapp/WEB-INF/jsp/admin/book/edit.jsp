@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/admin-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <script>
         function uploadCover(event) {
             var fileInput = document.querySelector('input[name="coverFile"]');
@@ -140,5 +141,6 @@
         </form>
     </div>
 </div>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

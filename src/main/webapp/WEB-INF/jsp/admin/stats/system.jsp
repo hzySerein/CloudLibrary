@@ -10,56 +10,115 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/admin-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <style>
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-bottom: 40px; }
-        .stats-card { padding: 20px; background-color: #f8f9fa; border-radius: 8px; }
-        .stats-card h3 { font-size: 16px; color: #333; margin-bottom: 20px; }
-        .stats-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px; }
-        .stats-item:last-child { border-bottom: none; margin-bottom: 0; }
-        .stats-label { color: #666; }
-        .stats-value { font-weight: bold; color: #007bff; }
-        .chart-card { padding: 20px; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 30px; }
-        .chart-card h3 { font-size: 16px; color: #333; margin-bottom: 20px; }
-        .chart-content { height: 300px; background-color: white; border: 1px solid #eee; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #999; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 28px; }
+        .kpi-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg, 16px);
+            padding: 24px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: var(--card-shadow, 0 4px 12px rgba(0,0,0,0.05));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--hover-shadow, 0 10px 20px rgba(54, 87, 124, 0.12));
+        }
+        .kpi-info { display: flex; flex-direction: column; gap: 6px; }
+        .kpi-label { color: var(--text-muted, #64748b); font-size: 13px; font-weight: 500; }
+        .kpi-value { font-size: 26px; font-weight: 800; color: var(--text-dark, #0f172a); }
+        .kpi-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+        .kpi-icon.blue { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+        .kpi-icon.green { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+        .kpi-icon.purple { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+        .kpi-icon.orange { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+
+        .chart-card {
+            padding: 24px;
+            background-color: #ffffff;
+            border-radius: var(--border-radius-lg, 16px);
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: var(--card-shadow, 0 4px 12px rgba(0,0,0,0.05));
+            margin-bottom: 28px;
+        }
+        .chart-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark, #0f172a);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-content {
+            min-height: 280px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted, #64748b);
+        }
+
         .rankings-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 28px;
         }
         .ranking-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
+            background-color: #ffffff;
+            border-radius: var(--border-radius-lg, 16px);
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: var(--card-shadow, 0 4px 12px rgba(0,0,0,0.05));
+            padding: 24px;
         }
         .ranking-card h3 {
             font-size: 16px;
-            color: #333;
-            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--text-dark, #0f172a);
+            margin-bottom: 18px;
+            border-bottom: 2px solid var(--border-color, #e2e8f0);
+            padding-bottom: 10px;
         }
-        .ranking-list {
-            list-style: none;
-        }
+        .ranking-list { list-style: none; }
         .ranking-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
         }
-        .ranking-item:last-child {
-            border-bottom: none;
-        }
+        .ranking-item:last-child { border-bottom: none; }
         .ranking-number {
-            font-weight: bold;
-            color: #007bff;
-            width: 30px;
+            font-weight: 700;
+            color: var(--primary-color, #36577c);
+            width: 38px;
+            font-size: 14px;
         }
-        .ranking-info {
-            flex: 1;
-        }
+        .ranking-number.top1 { color: #f59e0b; }
+        .ranking-number.top2 { color: #64748b; }
+        .ranking-number.top3 { color: #b45309; }
+        .ranking-info { flex: 1; font-weight: 600; color: var(--text-dark, #334155); font-size: 14px; }
         .ranking-count {
-            font-weight: bold;
-            color: #28a745;
+            font-weight: 700;
+            color: var(--primary-color, #36577c);
+            background: rgba(54, 87, 124, 0.1);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -77,26 +136,35 @@
     <div class="content">
         <div class="stats-title">系统数据总览</div>
 
-        <!-- 核心数据统计 -->
+        <!-- 核心数据 KPI 卡片 -->
         <div class="stats-grid">
-            <div class="stats-card">
-                <h3>基础数据</h3>
-                <div class="stats-item">
-                    <span class="stats-label">总图书数量：</span>
-                    <span class="stats-value">${totalBook} 本</span>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-label">总图书数量</span>
+                    <span class="kpi-value">${totalBook}</span>
                 </div>
-                <div class="stats-item">
-                    <span class="stats-label">总用户数量：</span>
-                    <span class="stats-value">${totalUser} 人</span>
+                <div class="kpi-icon blue">📚</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-label">总用户数量</span>
+                    <span class="kpi-value">${totalUser}</span>
                 </div>
-                <div class="stats-item">
-                    <span class="stats-label">总借阅次数：</span>
-                    <span class="stats-value">${totalBorrow} 次</span>
+                <div class="kpi-icon green">👥</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-label">总借阅次数</span>
+                    <span class="kpi-value">${totalBorrow}</span>
                 </div>
-                <div class="stats-item">
-                    <span class="stats-label">未归还图书：</span>
-                    <span class="stats-value">${unReturnBorrow} 本</span>
+                <div class="kpi-icon purple">📖</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-label">未归还图书</span>
+                    <span class="kpi-value">${unReturnBorrow}</span>
                 </div>
+                <div class="kpi-icon orange">⏰</div>
             </div>
         </div>
 
@@ -128,8 +196,7 @@
             </div>
         </div>
 
-       <!-- 修改图书类型占比部分的代码 -->
-<div class="chart-card">
+       <div class="chart-card">
     <h3>图书类型占比</h3>
     <div class="chart-content">
         <c:if test="${not empty bookTypeRatio}">
@@ -206,6 +273,11 @@
             data.push(${fn:escapeXml(entry.count)});
         </c:forEach>
         
+        // 渐变填充背景
+        var gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(54, 87, 124, 0.35)');
+        gradient.addColorStop(1, 'rgba(54, 87, 124, 0.01)');
+        
         var chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -213,9 +285,14 @@
                 datasets: [{
                     label: '借阅次数',
                     data: data,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    borderWidth: 2,
+                    borderColor: '#36577c',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#36577c',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
                     fill: true,
                     tension: 0.4
                 }]
@@ -223,11 +300,20 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { font: { family: 'inherit', size: 13, weight: '600' } }
+                    }
+                },
                 scales: {
+                    x: { grid: { display: false } },
                     y: {
                         beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.6)' },
                         ticks: {
-                            stepSize: 1
+                            stepSize: 1,
+                            font: { family: 'inherit', size: 12 }
                         }
                     }
                 }
@@ -235,5 +321,6 @@
         });
     });
 </script>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

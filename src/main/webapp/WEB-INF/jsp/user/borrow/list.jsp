@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/user-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <style>
         .table-container {
             background: white;
@@ -40,13 +41,14 @@
             max-width: 400px;
         }
 
-        .operate {
-            display: flex;
+        .operate-actions {
+            display: inline-flex;
             gap: 6px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
-        .operate a {
+        .operate-actions a {
             padding: 6px 12px;
             border-radius: 4px;
             font-size: 12px;
@@ -54,7 +56,7 @@
             transition: all 0.3s ease;
         }
 
-        .operate a:hover {
+        .operate-actions a:hover {
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
@@ -106,16 +108,16 @@
         
         <div class="table-container">
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" style="min-width: 950px;">
                     <thead>
                         <tr>
-                            <th>图书名称</th>
-                            <th>借阅时间</th>
-                            <th>应归还时间</th>
-                            <th>实际归还时间</th>
-                            <th>逾期天数</th>
-                            <th>状态</th>
-                            <th>操作</th>
+                            <th style="min-width: 200px;">图书名称</th>
+                            <th style="min-width: 170px;">借阅时间</th>
+                            <th style="min-width: 140px;">应归还时间</th>
+                            <th style="min-width: 170px;">实际归还时间</th>
+                            <th style="min-width: 90px; text-align: center;">逾期天数</th>
+                            <th style="min-width: 80px; text-align: center;">状态</th>
+                            <th style="min-width: 100px; text-align: center;">操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,18 +162,20 @@
                                         </c:when>
                                     </c:choose>
                                 </td>
-                                <td class="operate">
-                                    <c:if test="${borrow.status == 0}">
-                                        <c:set var="overdueDays" value="${overdueDaysMap[borrow.id]}" />
-                                        <c:set var="book" value="${bookMap[borrow.bookId]}" />
-                                        <a href="javascript:void(0)" data-borrow-id="${borrow.id}" data-book-name="${fn:escapeXml(book.name)}" data-overdue="${overdueDays != null ? overdueDays : 0}" onclick="showReturnModal(this)" class="btn btn-accent btn-sm">申请归还</a>
-                                    </c:if>
-                                    <c:if test="${borrow.status == 1}">
-                                        <span style="color: var(--text-muted); font-size: 12px;">已归还</span>
-                                    </c:if>
-                                    <c:if test="${borrow.status == 2}">
-                                        <span style="color: var(--info); font-size: 12px;">待管理员确认</span>
-                                    </c:if>
+                                <td>
+                                    <div class="operate-actions">
+                                        <c:if test="${borrow.status == 0}">
+                                            <c:set var="overdueDays" value="${overdueDaysMap[borrow.id]}" />
+                                            <c:set var="book" value="${bookMap[borrow.bookId]}" />
+                                            <a href="javascript:void(0)" data-borrow-id="${borrow.id}" data-book-name="${fn:escapeXml(book.name)}" data-overdue="${overdueDays != null ? overdueDays : 0}" onclick="showReturnModal(this)" class="btn btn-accent btn-sm">申请归还</a>
+                                        </c:if>
+                                        <c:if test="${borrow.status == 1}">
+                                            <span style="color: var(--text-muted); font-size: 12px;">已归还</span>
+                                        </c:if>
+                                        <c:if test="${borrow.status == 2}">
+                                            <span style="color: var(--info); font-size: 12px;">待管理员确认</span>
+                                        </c:if>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -191,55 +195,9 @@
             </div>
         </div>
         
-        <c:if test="${pageUtil.totalPage > 0}">
-            <div class="pagination">
-                <div class="pagination-links">
-                    <c:if test="${pageUtil.hasPrevious()}">
-                        <a href="${pageContext.request.contextPath}/user/borrow/list?page=1&size=${pageUtil.pageSize}">首页</a>
-                        <a href="${pageContext.request.contextPath}/user/borrow/list?page=${pageUtil.currentPage - 1}&size=${pageUtil.pageSize}">上一页</a>
-                    </c:if>
-                    
-                    <c:forEach begin="${pageUtil.startPage}" end="${pageUtil.endPage}" var="i">
-                        <c:choose>
-                            <c:when test="${i == pageUtil.currentPage}">
-                                <span class="active">${i}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/user/borrow/list?page=${i}&size=${pageUtil.pageSize}">${i}</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-                    
-                    <c:if test="${pageUtil.hasNext()}">
-                        <a href="${pageContext.request.contextPath}/user/borrow/list?page=${pageUtil.currentPage + 1}&size=${pageUtil.pageSize}">下一页</a>
-                        <a href="${pageContext.request.contextPath}/user/borrow/list?page=${pageUtil.totalPage}&size=${pageUtil.pageSize}">末页</a>
-                    </c:if>
-                </div>
-                
-                <div class="pagination-info">
-                    共 ${pageUtil.totalCount} 条记录，第 ${pageUtil.currentPage} / ${pageUtil.totalPage} 页
-                </div>
-                
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <form method="get" action="${pageContext.request.contextPath}/user/borrow/list" style="display: flex; gap: 5px; align-items: center;">
-                        <label for="pageInput">跳转：</label>
-                        <input type="number" id="pageInput" name="page" class="form-control" style="width: 60px; padding: 6px 10px;" min="1" max="${pageUtil.totalPage}" value="${pageUtil.currentPage}">
-                        <input type="hidden" name="size" value="${pageUtil.pageSize}">
-                        <button type="submit" class="btn btn-primary btn-sm">GO</button>
-                    </form>
-                    <form method="get" action="${pageContext.request.contextPath}/user/borrow/list" style="display: flex; gap: 5px; align-items: center;">
-                        <label for="sizeSelect">每页：</label>
-                        <select id="sizeSelect" name="size" class="form-control" style="width: 80px; padding: 6px 10px;" onchange="this.form.submit()">
-                            <option value="5" ${pageUtil.pageSize == 5 ? 'selected' : ''}>5条</option>
-                            <option value="10" ${pageUtil.pageSize == 10 ? 'selected' : ''}>10条</option>
-                            <option value="20" ${pageUtil.pageSize == 20 ? 'selected' : ''}>20条</option>
-                            <option value="50" ${pageUtil.pageSize == 50 ? 'selected' : ''}>50条</option>
-                        </select>
-                        <input type="hidden" name="page" value="1">
-                    </form>
-                </div>
-            </div>
-        </c:if>
+        <jsp:include page="../../common/pagination.jsp">
+            <jsp:param name="pageUrl" value="${pageContext.request.contextPath}/user/borrow/list"/>
+        </jsp:include>
     </div>
 </div>
 
@@ -255,8 +213,9 @@
         }
         
         Modal.confirm(message, {
-            title: '申请归还',
-            onConfirm: () => {
+            title: '申请归还'
+        }).then(confirmed => {
+            if (confirmed) {
                 // 动态创建POST表单提交（替代GET请求）
                 var form = document.createElement('form');
                 form.method = 'POST';
@@ -272,5 +231,6 @@
         });
     }
 </script>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

@@ -1,54 +1,280 @@
+/* 管理员主题全局设计系统扩展 */
+.admin-theme {
+    --primary-color: #1e3a8a;
+    --primary-hover: #1e40af;
+    --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    --bg-light: #f8fafc;
+    --card-shadow: 0 4px 16px rgba(30, 58, 138, 0.08);
+    --hover-shadow: 0 12px 28px rgba(30, 58, 138, 0.16);
+}
+
 .admin-theme .header {
-    background-color: #007bff !important;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.25) !important;
+    backdrop-filter: blur(8px);
 }
 
 .admin-theme .user-info a {
-    background-color: rgba(0, 123, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-weight: 500;
 }
 
 .admin-theme .user-info a:hover {
-    background-color: rgba(0, 123, 255, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.28) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .admin-theme .sidebar-title {
-    border-bottom: 2px solid #007bff !important;
+    border-bottom: 2px solid #2563eb !important;
+    color: #1e3a8a !important;
+    font-weight: 700;
 }
 
 .admin-theme .nav-item:hover {
-    background-color: #e8f4ff !important;
-    border-left-color: #007bff !important;
+    background-color: rgba(37, 99, 235, 0.08) !important;
+    border-left-color: #2563eb !important;
+    color: #1e3a8a !important;
+    transform: translateX(3px);
 }
 
 .admin-theme .nav-item.active {
-    background-color: #e8f4ff !important;
-    border-left-color: #007bff !important;
-    color: #007bff !important;
+    background-color: rgba(37, 99, 235, 0.14) !important;
+    border-left-color: #2563eb !important;
+    color: #1e3a8a !important;
+    font-weight: 700;
 }
 
-.admin-theme .form-title {
-    border-bottom: 2px solid #007bff !important;
+.admin-theme .form-title, .admin-theme .stats-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #2563eb !important;
+    display: inline-block;
+    letter-spacing: 0.5px;
 }
 
-.admin-theme .status-enable {
-    background-color: #cce7ff !important;
-    color: #004085 !important;
-    border: 1px solid #007bff !important;
+/* 顶栏与搜索框 */
+.admin-theme .top-bar {
+    background: #ffffff;
+    padding: 20px 24px;
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.admin-theme .status-disable {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-    border: 1px solid #dc3545 !important;
+.admin-theme .top-bar:hover {
+    box-shadow: var(--hover-shadow);
 }
 
-.admin-theme .status-info {
-    background-color: #d1ecf1 !important;
-    color: #0c5460 !important;
-    border: 1px solid #17a2b8 !important;
+.admin-theme .top-bar form input[type="text"],
+.admin-theme .search-box input[type="text"],
+.admin-theme input.form-control,
+.admin-theme select.form-control,
+.admin-theme form input[type="text"],
+.admin-theme form input[type="number"],
+.admin-theme form input[type="date"],
+.admin-theme form input[type="password"],
+.admin-theme form select,
+.admin-theme form textarea {
+    padding: 10px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
 }
 
-.admin-theme .alert-danger {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-    border: 1px solid #f5c6cb !important;
+.admin-theme input:focus, 
+.admin-theme select:focus, 
+.admin-theme textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    outline: none;
+}
+
+/* 按钮通用提升 */
+.admin-theme .btn,
+.admin-theme button:not(.close):not(.toast-close):not(.mobile-menu-toggle) {
+    border-radius: 10px;
+    padding: 9px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.admin-theme .btn-primary,
+.admin-theme button[type="submit"]:not(.btn-sm):not(.btn-danger):not(.btn-warning):not(.btn-secondary):not(.btn-link):not(.btn-success):not(.btn-info) {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.admin-theme .btn-primary:hover,
+.admin-theme button[type="submit"]:not(.btn-sm):not(.btn-danger):not(.btn-warning):not(.btn-secondary):not(.btn-link):not(.btn-success):not(.btn-info):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.admin-theme .btn-accent {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.admin-theme .btn-secondary, .admin-theme .btn-outline {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+.admin-theme .btn-secondary:hover, .admin-theme .btn-outline:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.admin-theme .btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.admin-theme .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(239, 68, 68, 0.35);
+}
+
+.admin-theme .btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.admin-theme .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+}
+
+.admin-theme .btn-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.admin-theme .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.35);
+}
+
+.admin-theme .btn-info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.admin-theme .btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(59, 130, 246, 0.35);
+}
+
+.admin-theme .btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+}
+
+/* 表格卡片容器升级 */
+.admin-theme .table-container {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    margin-top: 20px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-theme .table-container:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+.admin-theme table, .admin-theme .borrow-table {
+    width: 100%;
+    border-collapse: collapse !important;
+}
+
+.admin-theme th {
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 14px 18px;
+    border-bottom: 2px solid #e2e8f0;
+    text-align: left;
+}
+
+.admin-theme td {
+    padding: 14px 18px;
+    color: #334155;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-theme tr {
+    transition: background-color 0.25s ease;
+}
+
+.admin-theme tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* 水凝胶 Glassmorphic Badges */
+.admin-theme .status, .admin-theme .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.admin-theme .status-enable, .admin-theme .badge-success {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    color: #047857 !important;
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.admin-theme .status-disable, .admin-theme .badge-danger {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    color: #b91c1c !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+.admin-theme .status-info, .admin-theme .badge-info {
+    background-color: rgba(59, 130, 246, 0.12) !important;
+    color: #1d4ed8 !important;
+    border: 1px solid rgba(59, 130, 246, 0.25) !important;
+}
+
+.admin-theme .badge-warning {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    color: #b45309 !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
 }

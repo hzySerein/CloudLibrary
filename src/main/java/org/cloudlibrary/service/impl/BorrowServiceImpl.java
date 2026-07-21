@@ -193,24 +193,51 @@ public class BorrowServiceImpl implements BorrowService {
     @Override
     @Transactional
     public int borrowBook(Integer userId, Integer bookId, String dueTime) {
-        // 检查库存（应用层快速校验）
+        // 1. 校验图书信息
         Book book = bookService.getBookById(bookId);
-        if (book == null || book.getStock() <= 0 || book.getStatus() != StatusConstants.ENABLED) {
-            throw new RuntimeException("图书不可借");
+        if (book == null) {
+            throw new RuntimeException("图书不存在");
+        }
+        if (book.getStatus() != StatusConstants.ENABLED) {
+            throw new RuntimeException("该图书已被禁用或下架");
+        }
+        if (book.getStock() <= 0) {
+            throw new RuntimeException("图书库存不足");
         }
 
-        // 扣减库存（SQL层使用 WHERE stock + num >= 0 防止并发超借）
+        // 2. 扣减库存（SQL层使用 WHERE stock + num >= 0 防止并发超借）
         int stockUpdated = bookService.updateStock(bookId, -1);
         if (stockUpdated == 0) {
-            // 库存不足（可能被并发请求抢先扣减），事务回滚
-            throw new RuntimeException("库存不足，可能已被其他用户借出");
+            throw new RuntimeException("图书库存不足，可能已被其他用户借出");
         }
 
-        // 创建借阅记录
+        // 3. 解析应归还时间与设置借阅时间
+        java.util.Date parsedDueTime = null;
+        if (dueTime != null && !dueTime.trim().isEmpty()) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                parsedDueTime = sdf.parse(dueTime.trim());
+            } catch (Exception e) {
+                try {
+                    java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    parsedDueTime = sdfFull.parse(dueTime.trim());
+                } catch (Exception ex) {
+                    // 解析失败时，默认 30 天后
+                }
+            }
+        }
+        if (parsedDueTime == null) {
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 30);
+            parsedDueTime = cal.getTime();
+        }
+
+        // 4. 创建借阅记录
         Borrow borrow = new Borrow();
         borrow.setBookId(bookId);
         borrow.setUserId(userId);
-        borrow.setDueTime(java.sql.Date.valueOf(dueTime));
+        borrow.setBorrowTime(new java.util.Date());
+        borrow.setDueTime(parsedDueTime);
         borrow.setStatus(BorrowStatus.UNRETURNED);
         borrowMapper.insert(borrow);
 

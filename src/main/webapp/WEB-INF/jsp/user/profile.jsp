@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/user-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <style>
         .profile-container {
             display: grid;
@@ -276,5 +277,6 @@
         }
     });
 </script>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

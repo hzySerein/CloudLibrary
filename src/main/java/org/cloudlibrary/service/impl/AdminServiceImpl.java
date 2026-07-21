@@ -49,16 +49,32 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void updateProfile(Integer adminId, Admin admin) {
-        // 获取数据库中的管理员信息
+    public void updateProfile(Integer adminId, Admin admin, String oldPassword, String confirmPassword) {
+        // 获取数据库中的管理员信息（含密码）
         Admin dbAdmin = adminMapper.selectById(adminId);
         if (dbAdmin == null) {
             throw new IllegalArgumentException("管理员信息验证失败");
         }
+
+        // 如果提供了旧密码，则修改密码
+        if (oldPassword != null && !oldPassword.isEmpty()) {
+            if (!PasswordUtil.checkPassword(oldPassword, dbAdmin.getPassword())) {
+                throw new IllegalArgumentException("旧密码输入错误");
+            }
+            if (admin.getPassword() == null || !admin.getPassword().equals(confirmPassword)) {
+                throw new IllegalArgumentException("新密码与确认密码不一致");
+            }
+            // 新密码会在update中哈希
+        } else {
+            // 不修改密码
+            admin.setPassword(null);
+        }
+
         // 保留不可修改的字段
         admin.setId(adminId);
-        admin.setPassword(null); // 不修改密码
-        admin.setPhone(dbAdmin.getPhone()); // 保留原电话
-        adminMapper.update(admin);
+        admin.setStatus(dbAdmin.getStatus());
+        admin.setRole(dbAdmin.getRole());
+
+        updateAdmin(admin);
     }
 }

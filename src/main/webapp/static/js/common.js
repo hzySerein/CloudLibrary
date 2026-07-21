@@ -275,10 +275,16 @@ class Modal {
                     <button class="btn btn-primary modal-confirm">确定</button>
                 `,
                 onConfirm: () => {
+                    if (typeof options.onConfirm === 'function') {
+                        options.onConfirm();
+                    }
                     modal.destroy();
                     resolve(true);
                 },
                 onCancel: () => {
+                    if (typeof options.onCancel === 'function') {
+                        options.onCancel();
+                    }
                     modal.destroy();
                     resolve(false);
                 }

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="zh-CN" class="user-theme">
 <head>
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/user-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <style>
         .table-container {
             overflow-x: auto;
@@ -31,23 +33,30 @@
         <div class="table-container">
             <c:choose>
                 <c:when test="${pageUtil.totalCount > 0}">
-                    <table>
+                    <table class="table" style="min-width: 950px;">
                         <thead>
                             <tr>
-                                <th>借阅ID</th>
-                                <th>图书ID</th>
-                                <th>借阅时间</th>
-                                <th>应还时间</th>
-                                <th>实际归还时间</th>
-                                <th>状态</th>
-                                <th>逾期天数</th>
+                                <th style="min-width: 200px;">图书名称</th>
+                                <th style="min-width: 170px;">借阅时间</th>
+                                <th style="min-width: 140px;">应归还时间</th>
+                                <th style="min-width: 170px;">实际归还时间</th>
+                                <th style="min-width: 80px; text-align: center;">状态</th>
+                                <th style="min-width: 90px; text-align: center;">逾期天数</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach items="${pageUtil.list}" var="borrow">
                                 <tr>
-                                    <td>${borrow.id}</td>
-                                    <td>${borrow.bookId}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${borrow.book != null}">
+                                                <c:out value="${borrow.book.name}"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                图书ID: ${borrow.bookId}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td><fmt:formatDate value="${borrow.borrowTime}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
                                     <td><fmt:formatDate value="${borrow.dueTime}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
                                     <td>
@@ -56,20 +65,24 @@
                                                 <fmt:formatDate value="${borrow.returnTime}" pattern="yyyy-MM-dd HH:mm:ss" />
                                             </c:when>
                                             <c:otherwise>
-                                                未归还
+                                                <span style="color: #94a3b8;">未归还</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <span class="status ${borrow.status == 1 ? 'status-enable' : borrow.status == 0 ? 'status-disable' : 'status-info'}">
-                                            <c:choose>
-                                                <c:when test="${borrow.status == 0}">未归还</c:when>
-                                                <c:when test="${borrow.status == 1}">已归还</c:when>
-                                                <c:when test="${borrow.status == 2}">待确认归还</c:when>
-                                            </c:choose>
-                                        </span>
+                                        <c:choose>
+                                            <c:when test="${borrow.status == 0}">
+                                                <span class="status status-disable">逾期未还</span>
+                                            </c:when>
+                                            <c:when test="${borrow.status == 1}">
+                                                <span class="status status-enable">已归还</span>
+                                            </c:when>
+                                            <c:when test="${borrow.status == 2}">
+                                                <span class="status status-info">待确认</span>
+                                            </c:when>
+                                        </c:choose>
                                     </td>
-                                    <td>${borrow.overdueDays gt 0 ? borrow.overdueDays : 0}天</td>
+                                    <td><span style="color: #c5221f; font-weight: bold;">${borrow.overdueDays gt 0 ? borrow.overdueDays : 0} 天</span></td>
                                 </tr>
                             </c:forEach>
                         </tbody>
@@ -84,36 +97,11 @@
             </c:choose>
         </div>
         
-        <c:if test="${pageUtil.totalPage > 0}">
-            <div class="pagination">
-                <div class="pagination-info">
-                    共 ${pageUtil.totalCount} 条记录，第 ${pageUtil.currentPage} / ${pageUtil.totalPage} 页
-                </div>
-                <div class="pagination-links">
-                    <c:if test="${pageUtil.hasPrevious()}">
-                        <a href="${pageContext.request.contextPath}/user/overdue/list?page=1&size=${pageUtil.pageSize}">首页</a>
-                        <a href="${pageContext.request.contextPath}/user/overdue/list?page=${pageUtil.currentPage - 1}&size=${pageUtil.pageSize}">上一页</a>
-                    </c:if>
-                    
-                    <c:forEach begin="${pageUtil.startPage}" end="${pageUtil.endPage}" var="i">
-                        <c:choose>
-                            <c:when test="${i == pageUtil.currentPage}">
-                                <span class="active">${i}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/user/overdue/list?page=${i}&size=${pageUtil.pageSize}">${i}</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-                    
-                    <c:if test="${pageUtil.hasNext()}">
-                        <a href="${pageContext.request.contextPath}/user/overdue/list?page=${pageUtil.currentPage + 1}&size=${pageUtil.pageSize}">下一页</a>
-                        <a href="${pageContext.request.contextPath}/user/overdue/list?page=${pageUtil.totalPage}&size=${pageUtil.pageSize}">末页</a>
-                    </c:if>
-                </div>
-            </div>
-        </c:if>
+        <jsp:include page="../../common/pagination.jsp">
+            <jsp:param name="pageUrl" value="${pageContext.request.contextPath}/user/overdue/list"/>
+        </jsp:include>
     </div>
 </div>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

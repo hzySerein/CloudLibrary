@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/admin-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
 </head>
 <body>
 <jsp:include page="../../common/admin-header.jsp">
@@ -30,111 +31,84 @@
             </div>
         </c:if>
         <div class="top-bar">
-            <div>
-                <form method="get" action="${pageContext.request.contextPath}/admin/user/list" style="display: inline-block; margin-right: 10px;">
-                    <input type="text" name="keyword" aria-label="搜索用户" placeholder="请输入用户名或邮箱" value="${fn:escapeXml(keyword)}">
-                    <button type="submit">搜索</button>
+            <div class="search-box" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <form method="get" action="${pageContext.request.contextPath}/admin/user/list" style="display: flex; gap: 10px; align-items: center; flex: 1;">
+                    <input type="text" name="keyword" class="form-control" style="max-width: 360px;" aria-label="搜索用户" placeholder="请输入用户名或邮箱" value="${fn:escapeXml(keyword)}">
+                    <button type="submit" class="btn btn-primary">搜索</button>
                     <c:if test="${not empty keyword}">
-                        <a href="${pageContext.request.contextPath}/admin/user/list" style="margin-left: 10px; color: #666;">清空搜索</a>
+                        <a href="${pageContext.request.contextPath}/admin/user/list" class="btn btn-secondary">清空搜索</a>
                     </c:if>
                 </form>
-                <a href="${pageContext.request.contextPath}/admin/user/toAdd"><button>添加用户</button></a>
+                <a href="${pageContext.request.contextPath}/admin/user/toAdd"><button type="button" class="btn btn-accent">+ 添加用户</button></a>
             </div>
         </div>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>用户名</th>
-                    <th>姓名</th>
-                    <th>联系电话</th>
-                    <th>角色</th>
-                    <th>创建时间</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                <c:forEach items="${pageUtil.list}" var="user">
+        <div class="table-container">
+            <div class="table-responsive">
+                <table>
+                    <thead>
                     <tr>
-                        <td><c:out value="${user.id}"/></td>
-                        <td><c:out value="${user.username}"/></td>
-                        <td><c:out value="${user.name}"/></td>
-                        <td><c:out value="${user.phone}"/></td>
-                        <td>${user.role == 'admin' ? '管理员' : '普通用户'}</td>
-                        <td>
-    <c:choose>
-        <c:when test="${not empty user.createTime}">
-            <fmt:formatDate value="${user.createTime}" pattern="yyyy年MM月dd日 HH:mm:ss" />
-        </c:when>
-        <c:otherwise>-</c:otherwise>
-    </c:choose>
-</td>
-                        <td class="operate">
-                            <a href="${pageContext.request.contextPath}/admin/user/toEdit/${user.id}">编辑</a>
-                            <c:if test="${user.role != 'admin'}">
-                                <form action="${pageContext.request.contextPath}/admin/user/delete/${user.id}" method="post" style="display:inline;" onsubmit="return confirm('确认删除该用户吗？')">
-                                    <input type="hidden" name="_csrf" value="${_csrf_token}">
-                                    <button type="submit" class="btn-link">删除</button>
-                                </form>
-                            </c:if>
-                        </td>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>姓名</th>
+                        <th>联系电话</th>
+                        <th>角色</th>
+                        <th>创建时间</th>
+                        <th style="width: 160px;">操作</th>
                     </tr>
-                </c:forEach>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    <c:forEach items="${pageUtil.list}" var="user">
+                        <tr>
+                            <td><c:out value="${user.id}"/></td>
+                            <td><strong><c:out value="${user.username}"/></strong></td>
+                            <td><c:out value="${user.name}"/></td>
+                            <td><c:out value="${user.phone}"/></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${user.role == 'admin'}">
+                                        <span class="badge badge-info">管理员</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge badge-success">普通用户</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty user.createTime}">
+                                        <fmt:formatDate value="${user.createTime}" pattern="yyyy年MM月dd日 HH:mm:ss" />
+                                    </c:when>
+                                    <c:otherwise>-</c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <div class="operate-actions">
+                                    <c:if test="${user.role != 'admin'}">
+                                        <a href="${pageContext.request.contextPath}/admin/user/toEdit/${user.id}" class="btn btn-info btn-sm">编辑</a>
+                                        <form action="${pageContext.request.contextPath}/admin/user/delete/${user.id}" method="post" style="display:inline;" onsubmit="return confirm('确认删除该用户吗？')">
+                                            <input type="hidden" name="_csrf" value="${_csrf_token}">
+                                            <button type="submit" class="btn btn-danger btn-sm">删除</button>
+                                        </form>
+                                    </c:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    <c:if test="${empty pageUtil.list}">
+                        <tr>
+                            <td colspan="7" style="color: #999; text-align: center; padding: 40px;">暂无用户记录</td>
+                        </tr>
+                    </c:if>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
-        <!-- 分页导航 -->
-        <c:if test="${pageUtil.totalPage > 0}">
-            <div class="pagination">
-                <div class="pagination-info">
-                    共 ${pageUtil.totalCount} 条记录，第 ${pageUtil.currentPage} / ${pageUtil.totalPage} 页
-                </div>
-                <div class="pagination-links">
-                    <c:if test="${pageUtil.hasPrevious()}">
-                        <a href="${pageContext.request.contextPath}/admin/user/list?page=1&size=${pageUtil.pageSize}">首页</a>
-                        <a href="${pageContext.request.contextPath}/admin/user/list?page=${pageUtil.currentPage - 1}&size=${pageUtil.pageSize}">上一页</a>
-                    </c:if>
-                    
-                    <c:forEach begin="${pageUtil.startPage}" end="${pageUtil.endPage}" var="i">
-                        <c:choose>
-                            <c:when test="${i == pageUtil.currentPage}">
-                                <span class="active">${i}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/admin/user/list?page=${i}&size=${pageUtil.pageSize}">${i}</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-                    
-                    <c:if test="${pageUtil.hasNext()}">
-                        <a href="${pageContext.request.contextPath}/admin/user/list?page=${pageUtil.currentPage + 1}&size=${pageUtil.pageSize}">下一页</a>
-                        <a href="${pageContext.request.contextPath}/admin/user/list?page=${pageUtil.totalPage}&size=${pageUtil.pageSize}">末页</a>
-                    </c:if>
-                </div>
-                
-                <div class="pagination-form">
-                    <form method="get" action="${pageContext.request.contextPath}/admin/user/list">
-                        <label for="pageInput">跳转到：</label>
-                        <input type="number" id="pageInput" name="page" min="1" max="${pageUtil.totalPage}" value="${pageUtil.currentPage}">
-                        <input type="hidden" name="size" value="${pageUtil.pageSize}">
-                        <button type="submit">跳转</button>
-                    </form>
-                    <form method="get" action="${pageContext.request.contextPath}/admin/user/list">
-                        <label for="sizeSelect">每页显示：</label>
-                        <select id="sizeSelect" name="size" onchange="this.form.submit()">
-                            <option value="5" ${pageUtil.pageSize == 5 ? 'selected' : ''}>5条</option>
-                            <option value="10" ${pageUtil.pageSize == 10 ? 'selected' : ''}>10条</option>
-                            <option value="20" ${pageUtil.pageSize == 20 ? 'selected' : ''}>20条</option>
-                            <option value="50" ${pageUtil.pageSize == 50 ? 'selected' : ''}>50条</option>
-                        </select>
-                        <input type="hidden" name="page" value="1">
-                    </form>
-                </div>
-            </div>
-        </c:if>
+        <jsp:include page="../../common/pagination.jsp">
+            <jsp:param name="pageUrl" value="${pageContext.request.contextPath}/admin/user/list"/>
+        </jsp:include>
     </div>
 </div>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

@@ -32,16 +32,23 @@ public class UserLoginController {
             @RequestParam("username") String username,
             @RequestParam("password") String password,
             Model model,
-            HttpServletRequest request,
-            HttpSession session) {
+            HttpServletRequest request) {
 
         // 调用Service查询用户
         User user = userService.login(username, password);
 
         if (user != null) {
-            // 登录成功：销毁旧Session，创建新Session（防止Session固定攻击）
-            session.invalidate();
+            // 登录成功：销毁旧Session（防止Session固定攻击），安全处理IllegalStateException
+            HttpSession currentSession = request.getSession(false);
+            if (currentSession != null) {
+                try {
+                    currentSession.invalidate();
+                } catch (IllegalStateException ignored) {
+                    // 会话已被销毁或已无效，忽略此异常
+                }
+            }
             HttpSession newSession = request.getSession(true);
+            
             // 清除密码后再存入Session，避免密码哈希泄露
             user.setPassword(null);
             newSession.setAttribute("loginUser", user);
@@ -65,8 +72,15 @@ public class UserLoginController {
 
     // 用户退出登录
     @PostMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate(); // 完全清除session
+    public String logout(HttpServletRequest request) {
+        HttpSession currentSession = request.getSession(false);
+        if (currentSession != null) {
+            try {
+                currentSession.invalidate(); // 完全清除session
+            } catch (IllegalStateException ignored) {
+                // 会话已无效
+            }
+        }
         return "redirect:/user/toLogin";
     }
     

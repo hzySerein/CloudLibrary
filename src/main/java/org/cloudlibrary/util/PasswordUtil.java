@@ -32,7 +32,12 @@ public class PasswordUtil {
         }
         // BCrypt哈希密码以 "$2a$"、"$2b$" 或 "$2y$" 开头，长度为60
         if (isBCryptHash(storedPassword)) {
-            return BCrypt.checkpw(plainPassword, storedPassword);
+            // jBCrypt 0.4 仅支持 $2a$，需将 $2b$/$2y$ 转换为 $2a$
+            String normalized = storedPassword;
+            if (normalized.startsWith("$2b$") || normalized.startsWith("$2y$")) {
+                normalized = "$2a$" + normalized.substring(4);
+            }
+            return BCrypt.checkpw(plainPassword, normalized);
         }
         // 兼容旧的明文密码
         return plainPassword.equals(storedPassword);

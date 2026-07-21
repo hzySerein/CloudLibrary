@@ -34,7 +34,7 @@
             status,
             role,
             create_time as createTime
-        FROM user ORDER BY id DESC LIMIT #{offset}, #{size}
+        FROM user WHERE role != 'admin' ORDER BY id DESC LIMIT #{offset}, #{size}
     </select>
     <select id="searchUsers" resultType="User">
         SELECT
@@ -46,7 +46,7 @@
             role,
             create_time as createTime
         FROM user
-        WHERE status = 1
+        WHERE status = 1 AND role != 'admin'
         AND (username LIKE CONCAT('%', #{keyword}, '%')
              OR name LIKE CONCAT('%', #{keyword}, '%')
              OR phone LIKE CONCAT('%', #{keyword}, '%'))
@@ -54,13 +54,13 @@
         LIMIT #{offset}, #{size}
     </select>
     <select id="countTotalUser" resultType="int">
-        SELECT COUNT(*) FROM user WHERE status = 1
+        SELECT COUNT(*) FROM user WHERE status = 1 AND role != 'admin'
     </select>
     <select id="countSearchUsers" resultType="int">
-        SELECT COUNT(*) FROM user 
-        WHERE status = 1
-        AND (username LIKE CONCAT('%', #{keyword}, '%') 
-             OR name LIKE CONCAT('%', #{keyword}, '%') 
+        SELECT COUNT(*) FROM user
+        WHERE status = 1 AND role != 'admin'
+        AND (username LIKE CONCAT('%', #{keyword}, '%')
+             OR name LIKE CONCAT('%', #{keyword}, '%')
              OR phone LIKE CONCAT('%', #{keyword}, '%'))
     </select>
     

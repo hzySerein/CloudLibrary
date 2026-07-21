@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/admin-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <style>
         /* 图书卡片样式 */
         .book-grid {
@@ -34,7 +35,7 @@
         .book-card.out-of-stock {
             opacity: 0.7;
         }
-        .book-cover {
+        .card-cover {
             height: 280px;
             overflow: hidden;
             position: relative;
@@ -44,13 +45,13 @@
             justify-content: center;
             cursor: pointer;
         }
-        .book-cover img {
+        .card-cover img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
-        .book-card:hover .book-cover img {
+        .book-card:hover .card-cover img {
             transform: scale(1.05);
         }
         .default-cover {
@@ -236,8 +237,11 @@
         <c:if test="${param.error == 'stock'}">
             <div class="alert alert-danger">该图书库存不足，无法借阅！</div>
         </c:if>
-        <c:if test="${param.error == 'book_disabled'}">
-            <div class="alert alert-danger">该图书已被禁用，无法借阅！</div>
+        <c:if test="${param.error == 'disabled' || param.error == 'book_disabled'}">
+            <div class="alert alert-danger">该图书已被禁用或下架，无法借阅！</div>
+        </c:if>
+        <c:if test="${param.error == 'system'}">
+            <div class="alert alert-danger">系统处理异常，借阅失败，请稍后重试！</div>
         </c:if>
 
         <form action="${pageContext.request.contextPath}/admin/borrow/apply" method="get">
@@ -262,7 +266,7 @@
                 <div class="book-grid">
                     <c:forEach items="${pageUtil.list}" var="book">
                         <div class="book-card ${book.stock <= 0 || book.status != 1 ? 'out-of-stock' : ''}">
-                            <div class="book-cover" onclick="showBookDetail(${book.id})">
+                            <div class="card-cover" onclick="showBookDetail(${book.id})">
                                 <c:choose>
                                     <c:when test="${not empty book.cover}">
                                         <img src="${pageContext.request.contextPath}${book.cover}" alt="${fn:escapeXml(book.name)}" onerror="this.parentNode.innerHTML='<div class=\'default-cover\'><span>📚</span></div>'">
@@ -360,61 +364,9 @@
             <a href="${pageContext.request.contextPath}/admin/borrow/my" class="btn btn-secondary">我的借阅</a>
         </div>
         
-        <!-- 分页导航 -->
-        <c:if test="${pageUtil.totalPage > 0}">
-            <div class="pagination">
-                <div class="pagination-info">
-                    共 ${pageUtil.totalCount} 条记录，第 ${pageUtil.currentPage} / ${pageUtil.totalPage} 页
-                </div>
-                <div class="pagination-links">
-                    <c:if test="${pageUtil.hasPrevious()}">
-                        <a href="${pageContext.request.contextPath}/admin/borrow/apply?page=1&size=${pageUtil.pageSize}${not empty keyword ? '&keyword=' += keyword : ''}">首页</a>
-                        <a href="${pageContext.request.contextPath}/admin/borrow/apply?page=${pageUtil.currentPage - 1}&size=${pageUtil.pageSize}${not empty keyword ? '&keyword=' += keyword : ''}">上一页</a>
-                    </c:if>
-                    
-                    <c:forEach begin="${pageUtil.startPage}" end="${pageUtil.endPage}" var="i">
-                        <c:choose>
-                            <c:when test="${i == pageUtil.currentPage}">
-                                <span class="active">${i}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/admin/borrow/apply?page=${i}&size=${pageUtil.pageSize}${not empty keyword ? '&keyword=' += keyword : ''}">${i}</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-                    
-                    <c:if test="${pageUtil.hasNext()}">
-                        <a href="${pageContext.request.contextPath}/admin/borrow/apply?page=${pageUtil.currentPage + 1}&size=${pageUtil.pageSize}${not empty keyword ? '&keyword=' += keyword : ''}">下一页</a>
-                        <a href="${pageContext.request.contextPath}/admin/borrow/apply?page=${pageUtil.totalPage}&size=${pageUtil.pageSize}${not empty keyword ? '&keyword=' += keyword : ''}">末页</a>
-                    </c:if>
-                </div>
-                
-                <div class="pagination-form">
-                    <form method="get" action="${pageContext.request.contextPath}/admin/borrow/apply" style="display: inline-block;">
-                        <label for="pageInput">跳转到：</label>
-                        <input type="number" id="pageInput" name="page" min="1" max="${pageUtil.totalPage}" value="${pageUtil.currentPage}" style="width: 60px;">
-                        <input type="hidden" name="size" value="${pageUtil.pageSize}">
-                        <c:if test="${not empty keyword}">
-                            <input type="hidden" name="keyword" value="${fn:escapeXml(keyword)}">
-                        </c:if>
-                        <button type="submit">跳转</button>
-                    </form>
-                    <form method="get" action="${pageContext.request.contextPath}/admin/borrow/apply" style="display: inline-block;">
-                        <label for="sizeSelect">每页显示：</label>
-                        <select id="sizeSelect" name="size" onchange="this.form.submit()">
-                            <option value="5" ${pageUtil.pageSize == 5 ? 'selected' : ''}>5条</option>
-                            <option value="10" ${pageUtil.pageSize == 10 ? 'selected' : ''}>10条</option>
-                            <option value="20" ${pageUtil.pageSize == 20 ? 'selected' : ''}>20条</option>
-                            <option value="50" ${pageUtil.pageSize == 50 ? 'selected' : ''}>50条</option>
-                        </select>
-                        <input type="hidden" name="page" value="1">
-                        <c:if test="${not empty keyword}">
-                            <input type="hidden" name="keyword" value="${fn:escapeXml(keyword)}">
-                        </c:if>
-                    </form>
-                </div>
-            </div>
-        </c:if>
+        <jsp:include page="../../common/pagination.jsp">
+            <jsp:param name="pageUrl" value="${pageContext.request.contextPath}/admin/borrow/apply"/>
+        </jsp:include>
     </div>
 </div>
 
@@ -486,19 +438,11 @@
                 }
                 
                 // 处理封面图片
-                const coverElement = document.getElementById('detailCover');
+                const coverContainer = document.querySelector('.book-detail-cover');
                 if (book.cover) {
-                    coverElement.src = '${pageContext.request.contextPath}' + book.cover;
-                    coverElement.alt = book.name || '图书封面';
-                    coverElement.onerror = function() {
-                        this.onerror = null;
-                        this.parentNode.innerHTML = '<div class="default-cover"><span>📚</span></div>';
-                    };
+                    coverContainer.innerHTML = '<img id="detailCover" src="${pageContext.request.contextPath}' + book.cover + '" alt="' + (book.name || '图书封面') + '" onerror="this.onerror=null;this.parentNode.innerHTML=\'<div class=\\\'default-cover\\\'><span>📚</span></div>\'">';
                 } else {
-                    coverElement.src = '';
-                    coverElement.alt = '暂无封面';
-                    coverElement.onerror = null;
-                    coverElement.parentNode.innerHTML = '<div class="default-cover"><span>📚</span></div>';
+                    coverContainer.innerHTML = '<div class="default-cover"><span>📚</span></div>';
                 }
             })
             .catch(error => {
@@ -513,5 +457,6 @@
         document.getElementById('bookDetailModal').style.display = 'none';
     }
 </script>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

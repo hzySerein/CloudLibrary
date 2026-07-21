@@ -22,19 +22,37 @@ public class PageUtil<T> {
     public PageUtil() {}
 
     public PageUtil(int currentPage, int pageSize, int totalCount, List<T> list) {
-        this.currentPage = currentPage;
+        if (pageSize <= 0) {
+            pageSize = 10;
+        }
         this.pageSize = pageSize;
-        this.totalCount = totalCount;
+        this.totalCount = Math.max(0, totalCount);
         this.list = list;
         // 计算总页数
-        this.totalPage = (totalCount + pageSize - 1) / pageSize;
+        this.totalPage = (this.totalCount + this.pageSize - 1) / this.pageSize;
         // 确保当前页在合理范围内
-        if (this.currentPage < 1) {
-            this.currentPage = 1;
+        if (currentPage < 1) {
+            currentPage = 1;
         }
-        if (this.currentPage > this.totalPage && this.totalPage > 0) {
-            this.currentPage = this.totalPage;
+        if (currentPage > this.totalPage && this.totalPage > 0) {
+            currentPage = this.totalPage;
         }
+        this.currentPage = currentPage;
+    }
+
+    // 静态辅助方法：安全计算数据库分页偏移量
+    public static int getOffset(Integer page, Integer size) {
+        int validPage = (page == null || page < 1) ? 1 : page;
+        int validSize = (size == null || size < 1) ? 10 : size;
+        return (validPage - 1) * validSize;
+    }
+
+    public static int getValidPage(Integer page) {
+        return (page == null || page < 1) ? 1 : page;
+    }
+
+    public static int getValidSize(Integer size) {
+        return (size == null || size < 1) ? 10 : size;
     }
 
     // 获取开始页码

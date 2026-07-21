@@ -125,14 +125,14 @@
         FROM borrow b
         LEFT JOIN book bk ON b.book_id = bk.id
         LEFT JOIN user u ON b.user_id = u.id
-        WHERE b.status != 1 AND b.due_time < NOW()
+        WHERE b.status != 1 AND b.due_time &lt; NOW()
         ORDER BY b.due_time ASC
         LIMIT #{offset}, #{size}
     </select>
 
     <!-- 管理员逾期记录计数 -->
     <select id="countOverdue" resultType="int">
-        SELECT COUNT(*) FROM borrow WHERE status != 1 AND due_time < NOW()
+        SELECT COUNT(*) FROM borrow WHERE status != 1 AND due_time &lt; NOW()
     </select>
 
     <!-- 用户查看自己的逾期记录（含图书信息） -->
@@ -143,14 +143,14 @@
             bk.stock as bk_stock, bk.type as bk_type, bk.status as bk_status, bk.cover as bk_cover
         FROM borrow b
         LEFT JOIN book bk ON b.book_id = bk.id
-        WHERE b.user_id = #{userId} AND b.status != 1 AND b.due_time < NOW()
+        WHERE b.user_id = #{userId} AND b.status != 1 AND b.due_time &lt; NOW()
         ORDER BY b.due_time ASC
         LIMIT #{offset}, #{size}
     </select>
 
     <!-- 用户逾期记录计数 -->
     <select id="countOverdueByUserId" resultType="int">
-        SELECT COUNT(*) FROM borrow WHERE user_id = #{userId} AND status != 1 AND due_time < NOW()
+        SELECT COUNT(*) FROM borrow WHERE user_id = #{userId} AND status != 1 AND due_time &lt; NOW()
     </select>
 
     <!-- 按用户ID计数 -->
@@ -193,9 +193,9 @@
         ORDER BY month ASC
     </select>
     
-    <insert id="insert" parameterType="Borrow">
-        INSERT INTO borrow (book_id, user_id, due_time, status)
-        VALUES (#{bookId}, #{userId}, #{dueTime}, #{status})
+    <insert id="insert" parameterType="Borrow" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO borrow (book_id, user_id, borrow_time, due_time, status)
+        VALUES (#{bookId}, #{userId}, COALESCE(#{borrowTime}, NOW()), #{dueTime}, #{status})
     </insert>
     <update id="updateReturnTime">
         UPDATE borrow SET return_time = #{returnTime} WHERE id = #{id}

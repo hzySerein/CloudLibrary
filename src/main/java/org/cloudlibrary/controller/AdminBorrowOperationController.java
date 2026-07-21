@@ -69,7 +69,7 @@ public class AdminBorrowOperationController {
      */
     @PostMapping("/apply")
     public String applyBorrow(@RequestParam Integer bookId,
-                              @RequestParam String dueTime,
+                              @RequestParam(required = false) String dueTime,
                               HttpSession session) {
         Admin admin = (Admin) session.getAttribute("loginAdmin");
         if (admin == null) {
@@ -79,8 +79,15 @@ public class AdminBorrowOperationController {
         try {
             // 使用事务方法：创建借阅记录 + 扣减库存（原子操作）
             borrowService.borrowBook(admin.getId(), bookId, dueTime);
-        } catch (RuntimeException e) {
-            return "redirect:/admin/borrow/apply?error=stock";
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("禁用")) {
+                return "redirect:/admin/borrow/apply?error=disabled";
+            } else if (msg != null && msg.contains("库存")) {
+                return "redirect:/admin/borrow/apply?error=stock";
+            } else {
+                return "redirect:/admin/borrow/apply?error=system";
+            }
         }
 
         return "redirect:/admin/borrow/my";

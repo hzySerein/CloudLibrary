@@ -103,7 +103,7 @@ public class UserBorrowController {
 
     @PostMapping("/apply")
     public String applyBorrow(@RequestParam Integer bookId,
-                              @RequestParam String dueTime,
+                              @RequestParam(required = false) String dueTime,
                               HttpSession session) {
         User user = (User) session.getAttribute("loginUser");
         if (user == null) {
@@ -113,8 +113,15 @@ public class UserBorrowController {
         try {
             // 使用事务方法：创建借阅记录 + 扣减库存（原子操作）
             borrowService.borrowBook(user.getId(), bookId, dueTime);
-        } catch (RuntimeException e) {
-            return "redirect:/user/borrow/apply?error=stock";
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("禁用")) {
+                return "redirect:/user/borrow/apply?error=disabled";
+            } else if (msg != null && msg.contains("库存")) {
+                return "redirect:/user/borrow/apply?error=stock";
+            } else {
+                return "redirect:/user/borrow/apply?error=system";
+            }
         }
 
         return "redirect:/user/borrow/list";

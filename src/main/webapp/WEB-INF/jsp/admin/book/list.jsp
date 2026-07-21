@@ -7,16 +7,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图书管理 - 管理员后台</title>
-    <%!
-        public String formatChineseDateTime(java.util.Date date) {
-            if (date == null) return "-";
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-            return sdf.format(date);
-        }
-    %>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/admin-theme.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/layout.css">
     <style>
         .book-cover {
             width: 60px;
@@ -63,13 +57,14 @@
             max-width: 400px;
         }
 
-        .operate {
-            display: flex;
+        .operate-actions {
+            display: inline-flex;
             gap: 6px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
-        .operate a {
+        .operate-actions a {
             padding: 6px 12px;
             border-radius: 4px;
             font-size: 12px;
@@ -77,7 +72,7 @@
             transition: all 0.3s ease;
         }
 
-        .operate a:hover {
+        .operate-actions a:hover {
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
@@ -192,25 +187,26 @@
                                         <span class="badge badge-danger">禁用</span>
                                     </c:if>
                                 </td>
-                                <td class="operate">
-
-                                    <a href="${pageContext.request.contextPath}/admin/book/toEdit/${book.id}" class="btn btn-info btn-sm">编辑</a>
-                                    <c:if test="${book.status == 1}">
-                                        <form action="${pageContext.request.contextPath}/admin/book/disable/${book.id}" method="post" style="display:inline;" onsubmit="return confirm('确认禁用该图书吗？')">
+                                <td>
+                                    <div class="operate-actions">
+                                        <a href="${pageContext.request.contextPath}/admin/book/toEdit/${book.id}" class="btn btn-info btn-sm">编辑</a>
+                                        <c:if test="${book.status == 1}">
+                                            <form action="${pageContext.request.contextPath}/admin/book/disable/${book.id}" method="post" style="display:inline;" onsubmit="return confirm('确认禁用该图书吗？')">
+                                                <input type="hidden" name="_csrf" value="${_csrf_token}">
+                                                <button type="submit" class="btn btn-warning btn-sm">禁用</button>
+                                            </form>
+                                        </c:if>
+                                        <c:if test="${book.status == 0}">
+                                            <form action="${pageContext.request.contextPath}/admin/book/enable/${book.id}" method="post" style="display:inline;" onsubmit="return confirm('确认启用该图书吗？')">
+                                                <input type="hidden" name="_csrf" value="${_csrf_token}">
+                                                <button type="submit" class="btn btn-success btn-sm">启用</button>
+                                            </form>
+                                        </c:if>
+                                        <form action="${pageContext.request.contextPath}/admin/book/delete/${book.id}" method="post" style="display:inline;" onsubmit="return confirm('确认删除该图书吗？\n注意：此操作不可恢复！')">
                                             <input type="hidden" name="_csrf" value="${_csrf_token}">
-                                            <button type="submit" class="btn btn-warning btn-sm">禁用</button>
+                                            <button type="submit" class="btn btn-danger btn-sm">删除</button>
                                         </form>
-                                    </c:if>
-                                    <c:if test="${book.status == 0}">
-                                        <form action="${pageContext.request.contextPath}/admin/book/enable/${book.id}" method="post" style="display:inline;" onsubmit="return confirm('确认启用该图书吗？')">
-                                            <input type="hidden" name="_csrf" value="${_csrf_token}">
-                                            <button type="submit" class="btn btn-success btn-sm">启用</button>
-                                        </form>
-                                    </c:if>
-                                    <form action="${pageContext.request.contextPath}/admin/book/delete/${book.id}" method="post" style="display:inline;" onsubmit="return confirm('确认删除该图书吗？\n注意：此操作不可恢复！')">
-                                        <input type="hidden" name="_csrf" value="${_csrf_token}">
-                                        <button type="submit" class="btn btn-danger btn-sm">删除</button>
-                                    </form>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -230,57 +226,12 @@
             </div>
         </div>
         
-        <c:if test="${pageUtil.totalPage > 0}">
-            <div class="pagination">
-                <div class="pagination-links">
-                    <c:if test="${pageUtil.hasPrevious()}">
-                        <a href="${pageContext.request.contextPath}/admin/book/list?page=1&size=${pageUtil.pageSize}">首页</a>
-                        <a href="${pageContext.request.contextPath}/admin/book/list?page=${pageUtil.currentPage - 1}&size=${pageUtil.pageSize}">上一页</a>
-                    </c:if>
-                    
-                    <c:forEach begin="${pageUtil.startPage}" end="${pageUtil.endPage}" var="i">
-                        <c:choose>
-                            <c:when test="${i == pageUtil.currentPage}">
-                                <span class="active">${i}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/admin/book/list?page=${i}&size=${pageUtil.pageSize}">${i}</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-                    
-                    <c:if test="${pageUtil.hasNext()}">
-                        <a href="${pageContext.request.contextPath}/admin/book/list?page=${pageUtil.currentPage + 1}&size=${pageUtil.pageSize}">下一页</a>
-                        <a href="${pageContext.request.contextPath}/admin/book/list?page=${pageUtil.totalPage}&size=${pageUtil.pageSize}">末页</a>
-                    </c:if>
-                </div>
-                
-                <div class="pagination-info">
-                    共 ${pageUtil.totalCount} 条记录，第 ${pageUtil.currentPage} / ${pageUtil.totalPage} 页
-                </div>
-                
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <form method="get" action="${pageContext.request.contextPath}/admin/book/list" style="display: flex; gap: 5px; align-items: center;">
-                        <label for="pageInput">跳转：</label>
-                        <input type="number" id="pageInput" name="page" class="form-control" style="width: 60px; padding: 6px 10px;" min="1" max="${pageUtil.totalPage}" value="${pageUtil.currentPage}">
-                        <input type="hidden" name="size" value="${pageUtil.pageSize}">
-                        <button type="submit" class="btn btn-primary btn-sm">GO</button>
-                    </form>
-                    <form method="get" action="${pageContext.request.contextPath}/admin/book/list" style="display: flex; gap: 5px; align-items: center;">
-                        <label for="sizeSelect">每页：</label>
-                        <select id="sizeSelect" name="size" class="form-control" style="width: 80px; padding: 6px 10px;" onchange="this.form.submit()">
-                            <option value="5" ${pageUtil.pageSize == 5 ? 'selected' : ''}>5条</option>
-                            <option value="10" ${pageUtil.pageSize == 10 ? 'selected' : ''}>10条</option>
-                            <option value="20" ${pageUtil.pageSize == 20 ? 'selected' : ''}>20条</option>
-                            <option value="50" ${pageUtil.pageSize == 50 ? 'selected' : ''}>50条</option>
-                        </select>
-                        <input type="hidden" name="page" value="1">
-                    </form>
-                </div>
-            </div>
-        </c:if>
+        <jsp:include page="../../common/pagination.jsp">
+            <jsp:param name="pageUrl" value="${pageContext.request.contextPath}/admin/book/list"/>
+        </jsp:include>
     </div>
 </div>
 <script src="${pageContext.request.contextPath}/static/js/common.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/layout.js"></script>
 </body>
 </html>

@@ -142,14 +142,28 @@ class Modal {
 
         const bodyDiv = document.createElement('div');
         bodyDiv.className = 'modal-body';
-        bodyDiv.innerHTML = this.content;  // content需要支持HTML（表单等）
+        // content 支持 DOM Node 或纯文本
+        if (this.content instanceof Node) {
+            bodyDiv.appendChild(this.content);
+        } else {
+            bodyDiv.textContent = this.content != null ? this.content : '';
+        }
 
         const footerDiv = document.createElement('div');
         footerDiv.className = 'modal-footer';
-        if (this.footer) {
-            footerDiv.innerHTML = this.footer;
+        if (this.footer instanceof Node) {
+            footerDiv.appendChild(this.footer);
+        } else if (this.footer) {
+            footerDiv.textContent = this.footer;
         } else {
-            footerDiv.innerHTML = '<button class="btn btn-outline modal-cancel">取消</button><button class="btn btn-primary modal-confirm">确定</button>';
+            var defaultCancel = document.createElement('button');
+            defaultCancel.className = 'btn btn-outline modal-cancel';
+            defaultCancel.textContent = '取消';
+            var defaultConfirm = document.createElement('button');
+            defaultConfirm.className = 'btn btn-primary modal-confirm';
+            defaultConfirm.textContent = '确定';
+            footerDiv.appendChild(defaultCancel);
+            footerDiv.appendChild(defaultConfirm);
         }
 
         contentDiv.appendChild(headerDiv);
@@ -230,7 +244,12 @@ class Modal {
         this.content = content;
         const body = this.element.querySelector('.modal-body');
         if (body) {
-            body.innerHTML = content;
+            body.innerHTML = '';
+            if (content instanceof Node) {
+                body.appendChild(content);
+            } else {
+                body.textContent = content != null ? content : '';
+            }
         }
         return this;
     }
@@ -248,7 +267,12 @@ class Modal {
         this.footer = footer;
         const footerEl = this.element.querySelector('.modal-footer');
         if (footerEl) {
-            footerEl.innerHTML = footer;
+            footerEl.innerHTML = '';
+            if (footer instanceof Node) {
+                footerEl.appendChild(footer);
+            } else {
+                footerEl.textContent = footer != null ? footer : '';
+            }
             this.bindEvents();
         }
         return this;
@@ -265,15 +289,27 @@ class Modal {
         this.element = null;
     }
 
+    static _buildFooterButtons(buttons) {
+        var wrapper = document.createElement('div');
+        buttons.forEach(function(cfg) {
+            var btn = document.createElement('button');
+            btn.className = cfg.className;
+            btn.textContent = cfg.text;
+            wrapper.appendChild(btn);
+        });
+        return wrapper;
+    }
+
     static confirm(message, options = {}) {
+        const footer = Modal._buildFooterButtons([
+            { className: 'btn btn-outline modal-cancel', text: '取消' },
+            { className: 'btn btn-primary modal-confirm', text: '确定' }
+        ]);
         return new Promise((resolve) => {
             const modal = new Modal({
                 title: options.title || '确认',
                 content: message,
-                footer: `
-                    <button class="btn btn-outline modal-cancel">取消</button>
-                    <button class="btn btn-primary modal-confirm">确定</button>
-                `,
+                footer: footer,
                 onConfirm: () => {
                     if (typeof options.onConfirm === 'function') {
                         options.onConfirm();
@@ -294,13 +330,14 @@ class Modal {
     }
 
     static alert(message, options = {}) {
+        const footer = Modal._buildFooterButtons([
+            { className: 'btn btn-primary modal-confirm', text: '确定' }
+        ]);
         return new Promise((resolve) => {
             const modal = new Modal({
                 title: options.title || '提示',
                 content: message,
-                footer: `
-                    <button class="btn btn-primary modal-confirm">确定</button>
-                `,
+                footer: footer,
                 onConfirm: () => {
                     modal.destroy();
                     resolve();

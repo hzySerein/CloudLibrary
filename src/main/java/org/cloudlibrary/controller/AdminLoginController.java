@@ -2,6 +2,7 @@ package org.cloudlibrary.controller;
 
 import org.cloudlibrary.entity.Admin;
 import org.cloudlibrary.service.AdminService;
+import org.cloudlibrary.view.AccountProfileView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +23,13 @@ public class AdminLoginController {
 
     // 跳转到管理员登录页
     @GetMapping("/toLogin")
-    public String toLogin() {
-        return "admin/login"; // 对应WEB-INF/jsp/admin/login.jsp
+    public String toLogin(Model model) {
+        model.addAttribute("role", "admin");
+        model.addAttribute("roleName", "管理员");
+        model.addAttribute("themeClass", "admin-theme");
+        model.addAttribute("loginAction", "/admin/login");
+        model.addAttribute("pageTitle", "管理员登录");
+        return "auth/login";
     }
 
     // 处理管理员登录请求
@@ -48,7 +54,7 @@ public class AdminLoginController {
                 }
             }
             HttpSession newSession = request.getSession(true);
-            
+
             // 清除密码后再存入Session，避免密码哈希泄露
             admin.setPassword(null);
             newSession.setAttribute("loginAdmin", admin);
@@ -56,7 +62,12 @@ public class AdminLoginController {
         } else {
             // 登录失败：返回登录页，提示错误
             model.addAttribute("msg", "用户名或密码错误！");
-            return "admin/login";
+            model.addAttribute("role", "admin");
+            model.addAttribute("roleName", "管理员");
+            model.addAttribute("themeClass", "admin-theme");
+            model.addAttribute("loginAction", "/admin/login");
+            model.addAttribute("pageTitle", "管理员登录");
+            return "auth/login";
         }
     }
 
@@ -93,8 +104,18 @@ public class AdminLoginController {
         }
         // 从数据库获取最新信息（密码已被排除，不会传到前端）
         Admin currentAdmin = adminService.getAdminById(admin.getId());
-        model.addAttribute("admin", currentAdmin);
-        return "admin/profile";
+        AccountProfileView view = new AccountProfileView();
+        view.setId(currentAdmin.getId());
+        view.setUsername(currentAdmin.getUsername());
+        view.setName(currentAdmin.getName());
+        view.setPhone(currentAdmin.getPhone());
+        view.setRoleName("管理员");
+        view.setAvatarIcon("👨‍💼");
+        view.setProfileAction("/admin/profile");
+        view.setCancelUrl("/admin/borrow/apply");
+        model.addAttribute("accountProfile", view);
+        model.addAttribute("role", "admin");
+        return "account/profile";
     }
 
     // 处理修改个人信息请求

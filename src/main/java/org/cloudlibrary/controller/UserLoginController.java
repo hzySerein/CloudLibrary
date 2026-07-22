@@ -2,6 +2,7 @@ package org.cloudlibrary.controller;
 
 import org.cloudlibrary.entity.User;
 import org.cloudlibrary.service.UserService;
+import org.cloudlibrary.view.AccountProfileView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +23,13 @@ public class UserLoginController {
 
     // 跳转到用户登录页
     @GetMapping("/toLogin")
-    public String toLogin() {
-        return "user/login"; // 对应WEB-INF/jsp/user/login.jsp
+    public String toLogin(Model model) {
+        model.addAttribute("role", "user");
+        model.addAttribute("roleName", "用户");
+        model.addAttribute("themeClass", "");
+        model.addAttribute("loginAction", "/user/login");
+        model.addAttribute("pageTitle", "用户登录");
+        return "auth/login";
     }
 
     // 处理用户登录请求
@@ -48,7 +54,7 @@ public class UserLoginController {
                 }
             }
             HttpSession newSession = request.getSession(true);
-            
+
             // 清除密码后再存入Session，避免密码哈希泄露
             user.setPassword(null);
             newSession.setAttribute("loginUser", user);
@@ -56,7 +62,12 @@ public class UserLoginController {
         } else {
             // 登录失败：返回登录页，提示错误
             model.addAttribute("msg", "用户名或密码错误！");
-            return "user/login";
+            model.addAttribute("role", "user");
+            model.addAttribute("roleName", "用户");
+            model.addAttribute("themeClass", "");
+            model.addAttribute("loginAction", "/user/login");
+            model.addAttribute("pageTitle", "用户登录");
+            return "auth/login";
         }
     }
 
@@ -93,8 +104,18 @@ public class UserLoginController {
         }
         // 从数据库获取最新信息
         User currentUser = userService.getUserById(user.getId());
-        model.addAttribute("user", currentUser);
-        return "user/profile";
+        AccountProfileView view = new AccountProfileView();
+        view.setId(currentUser.getId());
+        view.setUsername(currentUser.getUsername());
+        view.setName(currentUser.getName());
+        view.setPhone(currentUser.getPhone());
+        view.setRoleName("用户");
+        view.setAvatarIcon("👤");
+        view.setProfileAction("/user/profile");
+        view.setCancelUrl("/user/index");
+        model.addAttribute("accountProfile", view);
+        model.addAttribute("role", "user");
+        return "account/profile";
     }
     
     // 处理修改个人信息请求

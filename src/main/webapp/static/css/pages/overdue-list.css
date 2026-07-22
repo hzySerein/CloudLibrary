@@ -1,0 +1,36 @@
+/* Overdue list - shared by admin/overdue/list and user/overdue/list */
+
+.overdue-table {
+    min-width: 950px;
+}
+
+.overdue-table-admin {
+    min-width: 1050px;
+}
+
+.overdue-table .col-id { min-width: 60px; }
+.overdue-table .col-book-name { min-width: 180px; }
+.overdue-table .col-user-id { min-width: 60px; }
+.overdue-table .col-borrower { min-width: 100px; }
+.overdue-table .col-borrow-time { min-width: 160px; }
+.overdue-table .col-due-time { min-width: 160px; }
+.overdue-table .col-return-time { min-width: 160px; }
+.overdue-table .col-status { min-width: 90px; text-align: center; }
+.overdue-table .col-overdue { min-width: 90px; text-align: center; }
+
+.overdue-not-returned {
+    color: #94a3b8;
+}
+
+.overdue-days-danger {
+    color: #c5221f;
+    font-weight: bold;
+}
+
+.overdue-empty {
+    padding: 40px;
+}
+
+.overdue-empty-title {
+    font-size: 16px;
+}

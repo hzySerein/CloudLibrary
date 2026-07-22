@@ -1,0 +1,100 @@
+/* Admin Borrow List - table, search, actions, empty state */
+
+.borrow-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.borrow-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.borrow-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    min-width: 980px;
+}
+
+.borrow-table th,
+.borrow-table td {
+    vertical-align: middle;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    box-sizing: border-box;
+    display: table-cell;
+}
+
+.borrow-table thead th {
+    border-bottom-width: 2px;
+    font-weight: 600;
+}
+
+/* Column widths */
+.borrow-table .col-id { min-width: 60px; }
+.borrow-table .col-user { min-width: 140px; }
+.borrow-table .col-book { min-width: 200px; }
+.borrow-table .col-borrow-time { min-width: 160px; }
+.borrow-table .col-due-time { min-width: 130px; }
+.borrow-table .col-return-time { min-width: 160px; }
+.borrow-table .col-status {
+    min-width: 80px;
+    text-align: center;
+}
+.borrow-table .col-actions {
+    min-width: 140px;
+    text-align: center;
+}
+
+/* Detail cells */
+.borrow-table .cell-detail {
+    white-space: normal;
+    min-width: 120px;
+}
+
+.borrow-table .cell-detail .detail-sub {
+    color: #666;
+    font-size: 12px;
+}
+
+/* Actions */
+.borrow-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.borrow-actions form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
+.borrow-actions form input[type="hidden"] {
+    display: none;
+}
+
+.borrow-actions .completed-label {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* Search bar */
+.borrow-search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+}
+
+/* Empty state */
+.borrow-empty td {
+    color: #94a3b8;
+    text-align: center;
+    padding: 40px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}

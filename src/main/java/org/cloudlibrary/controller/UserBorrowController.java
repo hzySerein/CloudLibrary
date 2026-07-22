@@ -1,6 +1,5 @@
 package org.cloudlibrary.controller;
 
-import org.cloudlibrary.constant.AppConstants;
 import org.cloudlibrary.entity.Book;
 import org.cloudlibrary.entity.Borrow;
 import org.cloudlibrary.entity.User;
@@ -68,13 +67,19 @@ public class UserBorrowController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String keyword,
+            HttpSession session,
             Model model) {
+        User user = (User) session.getAttribute("loginUser");
+        if (user == null) {
+            return "redirect:/user/toLogin";
+        }
+
         List<Book> books;
         int totalCount;
-        
+
         // 计算偏移量
         int offset = (page - 1) * size;
-        
+
         // 根据是否有关键词进行搜索或获取所有图书
         if (keyword != null && !keyword.trim().isEmpty()) {
             books = bookService.searchBooks(keyword, offset, size);
@@ -85,20 +90,20 @@ public class UserBorrowController {
             // 获取当前页数据
             books = bookService.getBooksByPage(offset, size);
         }
-        
-        // 获取热门图书排行榜
-        List<Book> topBooks = bookService.getTopBooks(AppConstants.TOP_RANKING_LIMIT);
-        
+
         // 创建分页对象
         PageUtil<Book> pageUtil = new PageUtil<>(page, size, totalCount, books);
-        
+
         model.addAttribute("pageUtil", pageUtil);
-        model.addAttribute("books", books);  // 添加图书列表
-        model.addAttribute("topBooks", topBooks);
         model.addAttribute("keyword", keyword);
-        // 添加当前日期用于前端日期控件的最小值限制
         model.addAttribute("currentDate", java.time.LocalDate.now().toString());
-        return "user/borrow/apply";
+        model.addAttribute("role", "user");
+        model.addAttribute("roleName", "用户");
+        model.addAttribute("account", user);
+        model.addAttribute("applyUrl", "/user/borrow/apply");
+        model.addAttribute("detailUrl", "/user/borrow/book/detail/");
+        model.addAttribute("borrowListUrl", "/user/borrow/list");
+        return "borrow/apply";
     }
 
     @PostMapping("/apply")

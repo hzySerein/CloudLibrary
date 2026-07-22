@@ -270,106 +270,6 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-/* 统一分页控制组件 (匹配参考截图) */
-.pagination {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 12px 16px;
-    background: #ffffff;
-    border-radius: 6px;
-    border: 1px solid #eef2f6;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.pagination-links {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-}
-
-.pagination-links a, 
-.pagination-links span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    height: 32px;
-    padding: 0 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    color: #334155;
-    font-size: 14px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    background: #ffffff;
-    box-sizing: border-box;
-}
-
-.pagination-links a:hover {
-    border-color: #36577c;
-    color: #36577c;
-    background-color: #f1f5f9;
-}
-
-.pagination-links span,
-.pagination-links span.active {
-    background-color: #36577c !important;
-    color: #ffffff !important;
-    border-color: #36577c !important;
-    font-weight: 600;
-}
-
-.pagination-info {
-    font-size: 14px;
-    color: #475569;
-    font-weight: 400;
-    text-align: center;
-}
-
-.pagination .btn-primary,
-.pagination button[type="submit"] {
-    background-color: #36577c !important;
-    border-color: #36577c !important;
-    color: #ffffff !important;
-    border-radius: 4px !important;
-    padding: 0 12px !important;
-    font-size: 13px !important;
-    height: 32px !important;
-    line-height: 32px !important;
-    font-weight: 500 !important;
-    cursor: pointer;
-}
-
-.pagination .btn-primary:hover,
-.pagination button[type="submit"]:hover {
-    background-color: #294565 !important;
-    border-color: #294565 !important;
-}
-
-.pagination input.form-control,
-.pagination select.form-control,
-.pagination input[type="number"],
-.pagination select {
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 4px !important;
-    height: 32px !important;
-    padding: 0 8px !important;
-    font-size: 14px !important;
-    color: #334155 !important;
-    background-color: #ffffff !important;
-    outline: none;
-}
-
-.pagination input.form-control:focus,
-.pagination select.form-control:focus {
-    border-color: #36577c !important;
-}
-
 /* 状态样式 */
 .status {
     display: inline-block;
@@ -543,14 +443,5 @@ div.operate {
     .operate .btn-link {
         padding: 3px 6px;
         font-size: 11px;
-    }
-    
-    .pagination {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .pagination-links {
-        margin: 10px 0;
     }
 }
